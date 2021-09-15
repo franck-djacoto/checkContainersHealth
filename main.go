@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/joho/godotenv"
@@ -27,11 +29,13 @@ func (s *smtpServer) Adress() string {
 }
 
 type Container struct {
-	name        string
-	url         string
-	method      string
-	identifiant string
-	password    string
+	name          string
+	url           string
+	method        string
+	identifiant   string
+	password      string
+	idFieldName   string
+	passFieldName string
 }
 
 var containers map[string]Container
@@ -52,51 +56,142 @@ func checkAndInitConfiguration() error {
 		return err
 	}
 
-	for _,v := range notNullableEnvVar {
+	for _, v := range notNullableEnvVar {
 		if os.Getenv(v) == "" {
 			return errors.New("Env variable " + v + "can't be null")
 		}
 	}
 
-	containers =  map[string]Container{
-		"gogs":             {name: "gogs", url: "https://gogs.dsp-archiwebo20-mt-ma-ca-fd.fr", method: "post", identifiant: os.Getenv("GOGS_ID"), password: os.Getenv("GOGS_PASS")},
-		"jenkins":          {name: "jenkins", url: "https://jenkins.dsp-archiwebo20-mt-ma-ca-fd.fr/", method: "post", identifiant: os.Getenv("JENKINS_ID"), password: os.Getenv("JENKINS_PASS")},
-		"grafana":          {name: "grafana", url: "https://grafana.dsp-archiwebo20-mt-ma-ca-fd.fr", method: "post", identifiant: os.Getenv("GRAFANA_ID"), password: os.Getenv("GRAFANA_PASS")},
-		"portainer":        {name: "portainer", url: "https://portainer.dsp-archiwebo20-mt-ma-ca-fd.fr/", method: "post", identifiant: os.Getenv("PORTAINER_ID"), password: os.Getenv("PORTAINER_PASS")},
-		"prod-admin":       {name: "prod-admin", url: "https://prod-admin.dsp-archiwebo20-mt-ma-ca-fd.fr/", method: "post", identifiant: os.Getenv("PRO_AMDIN_ID"), password: os.Getenv("PRO_ADMIN_PASS")},
-		"preprod-admin":    {name: "preprod-admin", url: "https://preprod-admin.dsp-archiwebo20-mt-ma-ca-fd.fr/", method: "post", identifiant: os.Getenv("PREPROD_ADMIN_ID"), password: os.Getenv("PREPROD_FRONT_PASS")},
-		"preprod-frontend": {name: "preprod-frontend", url: "https://frontend.dsp-archiwebo20-mt-ma-ca-fd.fr/", method: "post", identifiant: os.Getenv("PREPROD_FRONT_ID"), password: os.Getenv("PREPROD_FRONT_PASS")},
-		"prod-frontend":    {name: "prod-frontend", url: "https://dsp-archiwebo20-mt-ma-ca-fd.fr/", method: "post", identifiant: os.Getenv("PROD_FRONT_ID"), password: os.Getenv("PREPROD_FRONT_PASS")},
-		"php-my-amdin":     {name: "php-my-admin", url: "https://phpadmin.dsp-archiwebo20-mt-ma-ca-fd.fr/index.php?route=/", method: "post", identifiant: os.Getenv("PHPMYADMIN_ID"), password: os.Getenv("PHPMYADMIN_PASS")},
-		"traefik":          {name: "traefik", url: "https://traefik.dsp-archiwebo20-mt-ma-ca-fd.fr/", method: "get"},
-		"cAdvisor":         {name: "cAdvisor", url: "https://cadvisor.dsp-archiwebo20-mt-ma-ca-fd.fr", method: "get"},
-		"prometheus":       {name: "prometheus", url: "https://prometheus.dsp-archiwebo20-mt-ma-ca-fd.fr", method: "get"},
+	containers = map[string]Container{
+		"gogs": {name: "gogs",
+			url:           "https://gogs.dsp-archiwebo20-mt-ma-ca-fd.fr/user/login",
+			method:        "post",
+			identifiant:   os.Getenv("GOGS_ID"),
+			password:      os.Getenv("GOGS_PASS"),
+			idFieldName:   "user_name",
+			passFieldName: "password",
+		},
+
+		"jenkins": {name: "jenkins",
+			url:           "https://jenkins.dsp-archiwebo20-mt-ma-ca-fd.fr/login?from=%2F",
+			method:        "post",
+			identifiant:   os.Getenv("JENKINS_ID"),
+			password:      os.Getenv("JENKINS_PASS"),
+			idFieldName:   "j_username",
+			passFieldName: "j_password",
+		},
+
+		"grafana": {name: "grafana",
+			url:           "https://grafana.dsp-archiwebo20-mt-ma-ca-fd.fr",
+			method:        "post",
+			identifiant:   os.Getenv("GRAFANA_ID"),
+			password:      os.Getenv("GRAFANA_PASS"),
+			idFieldName:   "user",
+			passFieldName: "password",
+		},
+
+		"portainer": {name: "portainer",
+			url:           "https://portainer.dsp-archiwebo20-mt-ma-ca-fd.fr/",
+			method:        "post",
+			identifiant:   os.Getenv("PORTAINER_ID"),
+			password:      os.Getenv("PORTAINER_PASS"),
+			idFieldName:   "username",
+			passFieldName: "password",
+		},
+
+		"prod-admin": {name: "prod-admin",
+			url:           "https://prod-admin.dsp-archiwebo20-mt-ma-ca-fd.fr/",
+			method:        "post",
+			identifiant:   os.Getenv("PRO_AMDIN_ID"),
+			password:      os.Getenv("PRO_ADMIN_PASS"),
+			idFieldName:   "email",
+			passFieldName: "password",
+		},
+
+		"preprod-admin": {name: "preprod-admin",
+			url:           "https://preprod-admin.dsp-archiwebo20-mt-ma-ca-fd.fr/",
+			method:        "post",
+			identifiant:   os.Getenv("PREPROD_ADMIN_ID"),
+			password:      os.Getenv("PREPROD_FRONT_PASS"),
+			idFieldName:   "email",
+			passFieldName: "password",
+		},
+
+		"preprod-frontend": {name: "preprod-frontend",
+			url:    "https://frontend.dsp-archiwebo20-mt-ma-ca-fd.fr/",
+			method: "post", identifiant: os.Getenv("PREPROD_FRONT_ID"),
+			password:      os.Getenv("PREPROD_FRONT_PASS"),
+			idFieldName:   "email",
+			passFieldName: "password",
+		},
+
+		"prod-frontend": {name: "prod-frontend",
+			url:           "https://dsp-archiwebo20-mt-ma-ca-fd.fr/",
+			method:        "post",
+			identifiant:   os.Getenv("PROD_FRONT_ID"),
+			password:      os.Getenv("PREPROD_FRONT_PASS"),
+			idFieldName:   "email",
+			passFieldName: "password",
+		},
+
+		"php-my-amdin": {name: "php-my-admin",
+			url:           "https://phpadmin.dsp-archiwebo20-mt-ma-ca-fd.fr/index.php?route=/",
+			method:        "post",
+			identifiant:   os.Getenv("PHPMYADMIN_ID"),
+			password:      os.Getenv("PHPMYADMIN_PASS"),
+			idFieldName:   "pma_username",
+			passFieldName: "pma_password",
+		},
+
+		"traefik": {name: "traefik",
+			url:    "https://traefik.dsp-archiwebo20-mt-ma-ca-fd.fr/",
+			method: "get",
+		},
+
+		"cAdvisor": {name: "cAdvisor",
+			url:    "https://cadvisor.dsp-archiwebo20-mt-ma-ca-fd.fr",
+			method: "get",
+		},
+
+		"prometheus": {name: "prometheus",
+			url:    "https://prometheus.dsp-archiwebo20-mt-ma-ca-fd.fr",
+			method: "get",
+		},
 	}
 
 	sender.email = os.Getenv("SENDER_MAIL")
 	sender.password = os.Getenv("SENDER_PASS")
 	server.host = os.Getenv("SMTP_HOST")
 	server.port = os.Getenv("SMTP_PORT")
-	receivers = strings.Split( os.Getenv("RECEIVERS"), ",")
+	receivers = strings.Split(os.Getenv("RECEIVERS"), ",")
 
 	return nil
 }
 
 func checkContainerHealth(container Container) (error, *http.Response) {
-	var resp  *http.Response
+	var resp *http.Response
 	var err error
 	if _, ok := containers[container.name]; container.name == "" || container.url == "" || !ok {
 		return errors.New("Provide valid container name and valid container Url"), resp
 	}
 
-	if(container.method == "post"){
+	if container.method == "post" {
+		requestBody, err := json.Marshal(map[string]string{
+			container.idFieldName:   container.identifiant,
+			container.passFieldName: container.password,
+		})
 
+		if err != nil {
+			return err, nil
+		}
+
+		fmt.Printf("Trying to connect to %s container", container.name)
+		resp, err = http.Post(container.url, "application/json", bytes.NewBuffer(requestBody))
 	}
 
-	if (container.method == "get") {
+	if container.method == "get" {
 		resp, err = http.Get(container.url)
 	}
-
 
 	if err != nil {
 		return err, resp
