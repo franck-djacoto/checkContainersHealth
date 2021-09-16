@@ -63,7 +63,27 @@ func checkAndInitConfiguration() error {
 	}
 
 	containers = map[string]Container{
-		"gogs": {name: "gogs",
+
+		"traefik": {
+			name:   "traefik",
+			url:    "https://traefik.dsp-archiwebo20-mt-ma-ca-fd.fr/",
+			method: "get",
+		},
+
+		"cAdvisor": {
+			name:   "cAdvisor",
+			url:    "https://cadvisor.dsp-archiwebo20-mt-ma-ca-fd.fr",
+			method: "get",
+		},
+
+		"prometheus": {
+			name:   "prometheus",
+			url:    "https://prometheus.dsp-archiwebo20-mt-ma-ca-fd.fr",
+			method: "get",
+		},
+
+		"gogs": {
+			name:          "gogs",
 			url:           "https://gogs.dsp-archiwebo20-mt-ma-ca-fd.fr/user/login",
 			method:        "post",
 			identifiant:   os.Getenv("GOGS_ID"),
@@ -72,17 +92,9 @@ func checkAndInitConfiguration() error {
 			passFieldName: "password",
 		},
 
-		"jenkins": {name: "jenkins",
-			url:           "https://jenkins.dsp-archiwebo20-mt-ma-ca-fd.fr/login?from=%2F",
-			method:        "post",
-			identifiant:   os.Getenv("JENKINS_ID"),
-			password:      os.Getenv("JENKINS_PASS"),
-			idFieldName:   "j_username",
-			passFieldName: "j_password",
-		},
-
-		"grafana": {name: "grafana",
-			url:           "https://grafana.dsp-archiwebo20-mt-ma-ca-fd.fr",
+		"grafana": {
+			name:          "grafana",
+			url:           "https://grafana.dsp-archiwebo20-mt-ma-ca-fd.fr/login",
 			method:        "post",
 			identifiant:   os.Getenv("GRAFANA_ID"),
 			password:      os.Getenv("GRAFANA_PASS"),
@@ -90,8 +102,9 @@ func checkAndInitConfiguration() error {
 			passFieldName: "password",
 		},
 
-		"portainer": {name: "portainer",
-			url:           "https://portainer.dsp-archiwebo20-mt-ma-ca-fd.fr/",
+		"portainer": {
+			name:          "portainer",
+			url:           "https://portainer.dsp-archiwebo20-mt-ma-ca-fd.fr/#/auth",
 			method:        "post",
 			identifiant:   os.Getenv("PORTAINER_ID"),
 			password:      os.Getenv("PORTAINER_PASS"),
@@ -99,17 +112,19 @@ func checkAndInitConfiguration() error {
 			passFieldName: "password",
 		},
 
-		"prod-admin": {name: "prod-admin",
-			url:           "https://prod-admin.dsp-archiwebo20-mt-ma-ca-fd.fr/",
+		"prod-admin": {
+			name:          "prod-admin",
+			url:           "https://prod-admin.dsp-archiwebo20-mt-ma-ca-fd.fr/api/login",
 			method:        "post",
-			identifiant:   os.Getenv("PRO_AMDIN_ID"),
-			password:      os.Getenv("PRO_ADMIN_PASS"),
+			identifiant:   os.Getenv("PROD_AMDIN_ID"),
+			password:      os.Getenv("PROD_ADMIN_PASS"),
 			idFieldName:   "email",
 			passFieldName: "password",
 		},
 
-		"preprod-admin": {name: "preprod-admin",
-			url:           "https://preprod-admin.dsp-archiwebo20-mt-ma-ca-fd.fr/",
+		"preprod-admin": {
+			name:          "preprod-admin",
+			url:           "https://preprod-admin.dsp-archiwebo20-mt-ma-ca-fd.fr/api/login",
 			method:        "post",
 			identifiant:   os.Getenv("PREPROD_ADMIN_ID"),
 			password:      os.Getenv("PREPROD_FRONT_PASS"),
@@ -117,45 +132,43 @@ func checkAndInitConfiguration() error {
 			passFieldName: "password",
 		},
 
-		"preprod-frontend": {name: "preprod-frontend",
-			url:    "https://frontend.dsp-archiwebo20-mt-ma-ca-fd.fr/",
-			method: "post", identifiant: os.Getenv("PREPROD_FRONT_ID"),
+		"preprod-frontend": {
+			name:   "preprod-frontend",
+			url:    "https://frontend.dsp-archiwebo20-mt-ma-ca-fd.fr",
+			method: "get", identifiant: os.Getenv("PREPROD_FRONT_ID"),
 			password:      os.Getenv("PREPROD_FRONT_PASS"),
 			idFieldName:   "email",
 			passFieldName: "password",
 		},
 
-		"prod-frontend": {name: "prod-frontend",
-			url:           "https://dsp-archiwebo20-mt-ma-ca-fd.fr/",
-			method:        "post",
+		"prod-frontend": {
+			name:          "prod-frontend",
+			url:           "https://dsp-archiwebo20-mt-ma-ca-fd.fr",
+			method:        "get",
 			identifiant:   os.Getenv("PROD_FRONT_ID"),
 			password:      os.Getenv("PREPROD_FRONT_PASS"),
 			idFieldName:   "email",
 			passFieldName: "password",
 		},
 
-		"php-my-amdin": {name: "php-my-admin",
-			url:           "https://phpadmin.dsp-archiwebo20-mt-ma-ca-fd.fr/index.php?route=/",
+		"jenkins": {
+			name:          "jenkins",
+			url:           "https://jenkins.dsp-archiwebo20-mt-ma-ca-fd.fr/crumbIssuer/api/json?username=" + os.Getenv("JENKINS_ID") + "&password=" + os.Getenv("JENKINS_PASS"),
 			method:        "post",
+			identifiant:   os.Getenv("JENKINS_ID"),
+			password:      os.Getenv("JENKINS_PASS"),
+			idFieldName:   "j_username",
+			passFieldName: "j_password",
+		},
+
+		"php-my-admin": {
+			name:          "php-my-admin",
+			url:           "https://phpadmin.dsp-archiwebo20-mt-ma-ca-fd.fr",
+			method:        "get",
 			identifiant:   os.Getenv("PHPMYADMIN_ID"),
 			password:      os.Getenv("PHPMYADMIN_PASS"),
 			idFieldName:   "pma_username",
 			passFieldName: "pma_password",
-		},
-
-		"traefik": {name: "traefik",
-			url:    "https://traefik.dsp-archiwebo20-mt-ma-ca-fd.fr/",
-			method: "get",
-		},
-
-		"cAdvisor": {name: "cAdvisor",
-			url:    "https://cadvisor.dsp-archiwebo20-mt-ma-ca-fd.fr",
-			method: "get",
-		},
-
-		"prometheus": {name: "prometheus",
-			url:    "https://prometheus.dsp-archiwebo20-mt-ma-ca-fd.fr",
-			method: "get",
 		},
 	}
 
@@ -171,25 +184,28 @@ func checkAndInitConfiguration() error {
 func checkContainerHealth(container Container) (error, *http.Response) {
 	var resp *http.Response
 	var err error
+
 	if _, ok := containers[container.name]; container.name == "" || container.url == "" || !ok {
 		return errors.New("Provide valid container name and valid container Url"), resp
 	}
-
 	if container.method == "post" {
 		requestBody, err := json.Marshal(map[string]string{
 			container.idFieldName:   container.identifiant,
 			container.passFieldName: container.password,
 		})
 
+		//log.Printf("Json body of container %s  =====> {%s:%s, %s:%s}", container.name, container.idFieldName, container.identifiant, container.passFieldName, container.password)
+
 		if err != nil {
 			return err, nil
 		}
 
-		fmt.Printf("Trying to connect to %s container", container.name)
+		log.Printf("Trying to connect to %s container", container.name)
 		resp, err = http.Post(container.url, "application/json", bytes.NewBuffer(requestBody))
 	}
 
 	if container.method == "get" {
+
 		resp, err = http.Get(container.url)
 	}
 
@@ -218,37 +234,41 @@ func main() {
 		log.Fatalf("Error on configuring app %v", err)
 	}
 
-	for containerName, container := range containers {
+	for _, container := range containers {
 		err, resp := checkContainerHealth(container)
 		if err != nil {
-			log.Fatalf("Could'nt get %s container health State\n", containerName)
+			log.Printf("Could'nt get %s container health State\n", container.name)
 		}
 
 		if resp.StatusCode >= 200 && resp.StatusCode < 300 {
-			log.Printf("Container %s is healthy", containerName)
+			log.Printf("CONTAINER %s IS HEALTHY", strings.ToUpper(container.name))
 		}
 
 		if resp.StatusCode >= 400 {
+			if container.name == "jenkins" && resp.StatusCode == 403 {
+				log.Printf("CONTAINER JENKINS IS RESPONDING BUT WITH A 403 CODE")
+				continue // The container respond well but we can't connect via api call :(
+			}
 			bodyBytes, err := ioutil.ReadAll(resp.Body)
 			if err != nil {
-				log.Printf("Error while retreiving %s container response body", containerName)
+				log.Printf("Error while retreiving %s container response body", container.name)
 			}
 
-			log.Printf("!!! Container %s is not responding as expected  !!! => status code : %d", containerName, resp.StatusCode)
-			log.Printf("%s container's body : ==> %s", containerName, string(bodyBytes))
+			log.Printf("!!! Container %s is not responding as expected  !!! => status code : %d", container.name, resp.StatusCode)
+			log.Printf("%s container's body : ==> %s", container.name, string(bodyBytes))
 
 			message := []byte(
-				"Subject: Problem found on container  " + containerName + " (code : " + resp.Status + ")" + "\r\n\r\n" +
+				"Subject: Problem found on container  " + container.name + " (code : " + resp.Status + ")" + "\r\n\r\n" +
 					string(bodyBytes),
 			)
 
 			err = sendMailAlert(server, sender, receivers, message)
 
 			if err != nil {
-				fmt.Errorf("An error occured when sending mail alert for container %s => %v \n", containerName, err)
+				fmt.Errorf("An error occured when sending mail alert for container %s => %v \n", container.name, err)
 			}
 
-			log.Printf("Mail alert send successfully for container : %s", containerName)
+			log.Printf("Mail alert send successfully for container : %s", container.name)
 		}
 	}
 
