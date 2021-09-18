@@ -245,10 +245,10 @@ func main() {
 		}
 
 		if resp.StatusCode >= 400 {
-			if container.name == "jenkins" && resp.StatusCode == 403 {
+			/*if container.name == "jenkins" && resp.StatusCode == 403 {
 				log.Printf("CONTAINER JENKINS IS RESPONDING BUT WITH A 403 CODE")
 				continue // The container respond well but we can't connect via api call :(
-			}
+			}*/
 			bodyBytes, err := ioutil.ReadAll(resp.Body)
 			if err != nil {
 				log.Printf("Error while retreiving %s container response body", container.name)
