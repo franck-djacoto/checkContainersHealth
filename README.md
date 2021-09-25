@@ -6,7 +6,7 @@
 # WHY THIS PROJECT  ?
     I decided to code this simple program to solve a problem that we (my classroom mates and I) encountered during 
     our end of school year project. We developped a workflow devops containing many containers which sometimes go on a 
-    **Gateway time out** . To avoid checking containers state every time (As I'm a bit lazy hahah) I decided to ask my 
+    **Gateway time out** . To avoid checking containers state every time I decided to ask my 
     program to do that for me and send an email alert to me when it detect a unexpected behavior. 
 
 
