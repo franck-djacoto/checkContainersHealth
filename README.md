@@ -9,7 +9,6 @@ I decided to code this simple program to solve a problem that we (my classroom m
 our end of school year project. We developped a workflow devops containing many containers which sometimes go on a <br/>
 **Gateway time out** status . To avoid checking containers state every time . I decided to ask my <br/>
 program to do that for me and send an email alert to me when it detect a unexpected behavior.<br/>
-
 ***
 
 # HOW TO RUN THE PROJECT ?
